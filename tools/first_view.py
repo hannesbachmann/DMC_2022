@@ -6,13 +6,13 @@ import feather
 
 
 def displaying_csv_pairplots():
-    df = pd.read_csv('items.csv', delimiter='|')
+    df = pd.read_csv('../resources/items.csv', delimiter='|')
     cols = ['itemID', 'brand', 'feature_1', 'feature_2', 'feature_3', 'feature_4', 'feature_5']
     sns.pairplot(df[cols], height=2, plot_kws={"s": 3})
     plt.tight_layout()
     plt.show()
 
-    df2 = pd.read_csv('orders.csv', delimiter='|', parse_dates=True)
+    df2 = pd.read_csv('../resources/orders.csv', delimiter='|', parse_dates=True)
     first_date = pd.to_datetime(df2['date'][0]).value
     df2['date'] = df2.apply(lambda row: pd.to_datetime(row['date']).value - first_date, axis=1)
     cols2 = ['date', 'userID', 'itemID', 'order']
@@ -24,7 +24,7 @@ def displaying_csv_pairplots():
 def correlations():
     """find linear correlations"""
 
-    df = pd.read_csv('items.csv', delimiter='|')
+    df = pd.read_csv('../resources/items.csv', delimiter='|')
     cols = ['itemID', 'brand', 'feature_1', 'feature_2', 'feature_3', 'feature_4', 'feature_5']
     cm = np.corrcoef(df[cols].values.T)
     sns.set(font_scale=1.5)
@@ -32,7 +32,7 @@ def correlations():
                             yticklabels=cols, xticklabels=cols)
     plt.show()
 
-    df2 = pd.read_csv('orders.csv', delimiter='|', parse_dates=True)
+    df2 = pd.read_csv('../resources/orders.csv', delimiter='|', parse_dates=True)
     first_date = pd.to_datetime(df2['date'][0]).value
     df2['date'] = df2.apply(lambda row: pd.to_datetime(row['date']).value - first_date, axis=1)
     cols2 = ['date', 'userID', 'itemID', 'order']
