@@ -24,7 +24,7 @@ class Encoder:
         :rtype: dataframe
         """
         time_start = df['date'][0]
-        time_end = df['date'][-1]
+        time_end = df['date'][df.shape[0] - 1]
         date_range_df = pd.DataFrame({'time': pd.date_range(start=time_start, end=time_end, freq='D')})
         new_df = self.__Dates.date_to_day(date_range_df)
         new_df = self.__Dates.date_to_month(new_df)
@@ -54,18 +54,3 @@ class Encoder:
         # delete all columns except the the column containing the one-hot-vectors
         encoder_df = encoder_df.drop([i_col for i_col in range(num_cols)], axis=1)
         return encoder_df
-
-
-# def encoder():
-#     date_range_df = pd.DataFrame({'time': pd.date_range(start='2018-01-01', end='2018-12-31', freq='D')})
-#
-#     new_df = date_to_day(date_range_df)
-#     new_df = date_to_month(new_df)
-#     new_df = date_to_day_of_month(new_df)
-#     new_df = date_to_holiday(new_df)
-#     encoder_df = new_df.join(one_hot_encode(new_df, col_name='day_of_week'))
-#     encoder_df = encoder_df.join(one_hot_encode(new_df, col_name='month'))
-#     encoder_df = encoder_df.join(one_hot_encode(new_df, col_name='day_of_month'))
-#
-#     encoder_df['time'] = encoder_df.apply(lambda row: str(row['time']).replace(' 00:00:00', ''), axis=1)
-#     return encoder_df

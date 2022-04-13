@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import feather
+from modules.encoder import Encoder
 
 
 def displaying_csv_pairplots():
@@ -45,4 +46,11 @@ def correlations():
 
 
 if __name__ == '__main__':
-    correlations()
+    # correlations()
+    df2 = pd.read_csv('../resources/orders.csv', delimiter='|', parse_dates=True)
+    OneHot = Encoder(code_type='one_hot')
+    DateEncoder = OneHot.date_encoder(df2)
+
+    pass
+
+
