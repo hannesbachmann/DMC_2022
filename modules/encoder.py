@@ -24,12 +24,13 @@ class Encoder:
         :rtype: dataframe
         """
         time_start = df['date'][0]
-        time_end = df['date'][df.shape[0] - 1]
+        # set end time for encoder 2 months in the future for prognosis
+        time_end = df['date'][df.shape[0] - 1] + pd.to_timedelta('2 M')
         date_range_df = pd.DataFrame({'time': pd.date_range(start=time_start, end=time_end, freq='D')})
-        new_df = self.__Dates.date_to_day(date_range_df)
-        new_df = self.__Dates.date_to_month(new_df)
-        new_df = self.__Dates.date_to_day_of_month(new_df)
-        new_df = self.__Dates.date_to_holiday(new_df)
+        new_df = self.__Dates.date_to_day(date_range_df, col_name='date')
+        new_df = self.__Dates.date_to_month(new_df, col_name='date')
+        new_df = self.__Dates.date_to_day_of_month(new_df, col_name='date')
+        # new_df = self.__Dates.date_to_holiday(new_df)
         encoder_df = new_df.join(self.one_hot_encode(new_df, col_name='day_of_week'))
         encoder_df = encoder_df.join(self.one_hot_encode(new_df, col_name='month'))
         encoder_df = encoder_df.join(self.one_hot_encode(new_df, col_name='day_of_month'))
@@ -51,6 +52,6 @@ class Encoder:
         num_cols = encoder_df.shape[1]
         # convert columns to single vector, use previous col_name as suffix
         encoder_df['one_hot_' + col_name] = encoder_df.apply(lambda row: [row[i] for i in range(num_cols)], axis=1)
-        # delete all columns except the the column containing the one-hot-vectors
+        # delete all columns except the column containing the one-hot-vectors
         encoder_df = encoder_df.drop([i_col for i_col in range(num_cols)], axis=1)
         return encoder_df

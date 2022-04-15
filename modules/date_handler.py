@@ -6,16 +6,17 @@ class DateHandler:
     def __init__(self):
         pass
 
-    def date_to_day(self, df):
-        df['day_of_week'] = df.apply(lambda row: pd.to_datetime(row['time']).day_name(), axis=1)
+    def date_to_day(self, df, col_name):
+        df['day_of_week'] = df.apply(lambda row: pd.to_datetime(row[col_name]).day_name(), axis=1)
+        df['n_day_of_week'] = df.apply(lambda row: pd.to_datetime(row[col_name]).day_of_week, axis=1)
         return df
 
-    def date_to_month(self, df):
-        df['month'] = df.apply(lambda row: pd.to_datetime(row['time']).month_name(), axis=1)
+    def date_to_month(self, df, col_name):
+        df['month'] = df.apply(lambda row: pd.to_datetime(row[col_name]).month_name(), axis=1)
         return df
 
-    def date_to_day_of_month(self, df):
-        df['day_of_month'] = df.apply(lambda row: pd.to_datetime(row['time']).day, axis=1)
+    def date_to_day_of_month(self, df, col_name):
+        df['day_of_month'] = df.apply(lambda row: pd.to_datetime(row[col_name]).day, axis=1)
         return df
 
     def date_to_holiday(self, df):
