@@ -1,7 +1,10 @@
 ANALYSING DATA ON CORRELATIONS, DEPENDENCIES AND SIMILARITIES
 
 ITEM - USER
-° how often every item gets ordered again from the same user (in different orders, at different times)
+° how often every item gets ordered again from the same user (in different orders, at different times) - mean, total
+° how many users reorder a item
+° which item gets reordered from the most users (check against the total reorder to avoid items that gets reordered from
+    just small group of users very often)
 ° how often every item gets ordered in general (total order count for every item)
 ° reorder frequency for every item (for specific user / in general)
 ° correlation between reorder frequency and total number of orders

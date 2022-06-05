@@ -84,6 +84,10 @@ class GraphVisualization:
         temp = [a, b]
         self.visual.append(temp)
 
+    # def get_nodes(self):
+
+
+
     # In visualize function G is an object of
     # class Graph given by networkx G.add_edges_from(visual)
     # creates a graph with a given list
@@ -92,16 +96,23 @@ class GraphVisualization:
     def visualize(self, labels):
         G_ = nx.Graph()
         G_.add_edges_from(self.visual)
-        nx.draw_networkx(G_, with_labels=True, node_size=10, labels=labels, font_size=15, alpha=0.5,
-                         horizontalalignment='right',
-                         verticalalignment='bottom')
+        return list(self.G.nodes)
+        # nx.draw_networkx(G_, with_labels=True, node_size=10, labels=labels, font_size=15, alpha=0.5,
+        #                  horizontalalignment='right',
+        #                  verticalalignment='bottom')
         # plt.show()
 
 
 if __name__ == '__main__':
-    cat = pd.read_csv('../resources/category_hierarchy.csv', delimiter='|')
+    item_cat = pd.read_feather('../modules/item_category_matrix_f.feather')
+
+    sns.heatmap(item_cat)
+    plt.show()
+
+    ord = pd.read_csv('../resources/orders.csv', delimiter='|')
     # cat.plot(x='category', y='parent_category', kind='scatter', s=3)
     # Driver code
+    cat = None
 
     cat_group = cat.groupby(by='parent_category')
     graphs_list = [cat_group.get_group(x) for x in cat_group.groups]

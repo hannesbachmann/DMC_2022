@@ -4,7 +4,6 @@ from sklearn.preprocessing import OneHotEncoder
 
 
 class Encoder:
-
     def __init__(self, code_type='one_hot'):
         self.__code_type = code_type
         self.__DateEncoder = None
