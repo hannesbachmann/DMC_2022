@@ -1,0 +1,19 @@
+ANALYSING DATA ON CORRELATIONS, DEPENDENCIES AND SIMILARITIES
+
+ITEM - USER
+° how often every item gets ordered again from the same user (in different orders, at different times)
+° how often every item gets ordered in general (total order count for every item)
+° reorder frequency for every item (for specific user / in general)
+° correlation between reorder frequency and total number of orders
+° correlation between reorder frequency and how often a item gets reordered
+° dependencies between user and items the user buy  |\
+° how many users buy a specific item                | \-> maybe useful to avoid the cold start Problem
+
+ITEM - CATEGORY
+° dependencies between items in the same category
+    - items often share the same feature/brand values for ~75% of the features/brand
+° dependencies between items in the same categories and there parent categories
+° dependencies between items in the same parent category
+
+USER - CATEGORY
+° dependencies between the categories of the items a user order
