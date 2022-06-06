@@ -10,4 +10,4 @@ Inline-style:
 Reference-style: 
 ![alt text][logo]
 
-[logo]: [https://img.shields.io/badge/-hello-brightgreen] "Logo Title Text 2"
+[logo]: [https://img.shields.io/badge/-hello-brightgreen.png] "Logo Title Text 2"
