@@ -1,12 +1,36 @@
+_________________________________________
+\\    _____     _____  ______  _____     \
+ \\   ||   \   //    \   ||   //    \     \
+ //   ||    |  ||----|   ||   ||----|     /
+//____||___/___||____|___||___||____|____/
+             ________________________________________________________________________________________________
+             \\     _____    __   _    _____    __     __   _ _____    _____  ______ __    ____    __   _    \
+              \\   //    \   ||\  |   //    \   ||      \\ /  ||      //    \   ||   ||   //   \   ||\  |     \
+              //   ||----|   || \ |   ||----|   ||       ||   ''--.   ||----|   ||   ||   ||   |   || \ |     /
+             //____||____|___||__\|___||____|___||====___||___====|___||____|___||___||___\\___/___||__\|____/
+
 ANALYSING DATA ON CORRELATIONS, DEPENDENCIES AND SIMILARITIES
 
 ITEM - USER
 ° how often every item gets ordered again from the same user (in different orders, at different times) - mean, total
+    --> 1 item ~4.2%
+    --> 30 items: ~26%
+    --> 100 items: ~28%
 ° how many users reorder a item
 ° which item gets reordered from the most users (check against the total reorder to avoid items that gets reordered from
     just small group of users very often)
 ° how often every item gets ordered in general (total order count for every item)
-° reorder frequency for every item (for specific user / in general)
+    --> 1 item: ~0.98%
+    --> 30 items: ~7.8%
+    --> 100 items: ~16%
+° delay after which a specific user reorder the same item again (min, max, mean) - user specific
+° delay after a item gets reordered again (min, max, mean) - general
+° reorder frequency for every item (lots of items at ones / over time -> Verteilung über die Zeit) - specific user
+° reorder frequency for every item (lots of items at ones / over time -> Verteilung über die Zeit) - in general
+° seasonal effects for items
+° items get often ordered in large amounts per order / ordered just one item per order
+° items who often gets ordered together (from the same user at the same day, ! cant be sure that this is the same order)
+° reorder frequency  for every user (not related to a specific item)
 ° correlation between reorder frequency and total number of orders
 ° correlation between reorder frequency and how often a item gets reordered
 ° dependencies between user and items the user buy  |\
@@ -19,4 +43,6 @@ ITEM - CATEGORY
 ° dependencies between items in the same parent category
 
 USER - CATEGORY
-° dependencies between the categories of the items a user order
+° seasonal effects for item orders from the same category
+° which category gets ordered the most -> are items in the same category also get reordered often?
+° dependencies between the categories of the items a user order (same parent category?, dominant categories?)
