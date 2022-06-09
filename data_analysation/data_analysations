@@ -21,7 +21,8 @@ ITEM - USER
     --> 30 items: ~7.1%
     --> 100 items: ~16%
 ° how many users reorder items - total number
-    -
+    - all (train dataset) vs. one (test dataset)
+    - 32651/46138 from train dataset
 ° how many users reorder a specific item (check against the total reorder to avoid items that gets reordered from
     just small group of users very often)
     --> 1 item: ~0.98%
@@ -37,8 +38,10 @@ ITEM - USER
 ° correlation between reorder frequency and total number of orders
 ° correlation between reorder frequency and how often a item gets reordered
 ° dependencies between user and items the user buy
+    - dominant features, brand
 ° how often an specific item gets ordered                       |
-    -                                                           |
+    - 1 item: ~0.98%                                            |
+    - 30 items: ~7.8%                                           |
 ° how many users order a specific item                          |-> maybe useful to avoid the cold start Problem
     --> 1 item: ~0.98%                                          |
     --> 30 items: ~7.8%                                         |

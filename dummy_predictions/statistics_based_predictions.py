@@ -182,38 +182,6 @@ def reorder_based_prediction_hybrid_user_spec_general_multiple_rec():
     rec_df.to_csv('reorder_based_prediction_hybrid_user_spec_general_multiple_rec.csv', sep='|')
 
 
-def user_order_item_based_prediction_general_multiple_rec():
-    """
-    ° recommend items that get ordered from many users
-
-    -> 1 item: ~0.98%
-    -> 30 items: ~7.84%
-    """
-    train_df = pd.read_csv('../resources/train_all_except_one.csv', delimiter='|')
-    test_df = pd.read_csv('../resources/test_one_except_all.csv', delimiter='|')
-    item_ordered_by_users = count_users_that_order_item(train_df)
-    orders_train = item_ordered_by_users.sort_values(['order_count'], ascending=False).reset_index(drop=True)
-
-    test_df = test_df[['itemID', 'order']]
-
-    evaluation_result = {'num_recommendations': [], 'correct_recommendations_[%]': []}
-    for num_recommendations in range(1, 30):
-        reorders_train_list = orders_train['itemID'].tolist()[:num_recommendations]
-        new_test_df = test_df
-
-        # simply recommend the items with the most reorders to every user
-        new_test_df['validation'] = new_test_df.apply(lambda row: True if row['itemID'] in reorders_train_list else False, axis=1)
-        # evaluate performance of the prediction
-        valid_groups = new_test_df.groupby(['validation']).count().reset_index()[['validation', 'order']]
-        error = (valid_groups['order'][0] / valid_groups['order'][1]) - 1     # min 0, lower is better
-        percentage_correct = valid_groups["order"][1] / valid_groups["order"][0] * 100
-        print(f'correct recommendations: {percentage_correct}%')
-        evaluation_result['num_recommendations'].append(num_recommendations)
-        evaluation_result['correct_recommendations_[%]'].append(percentage_correct)
-    evaluation_result_df = pd.DataFrame(evaluation_result)
-    evaluation_result_df.to_csv('user_order_item_based_prediction_general_multiple_rec.csv', sep='|')
-
-
 def user_reorder_item_based_prediction_general_multiple_rec():
     """
     ° recommend items that get reordered from many users
@@ -233,7 +201,7 @@ def user_reorder_item_based_prediction_general_multiple_rec():
         reorders_train_list = reorders_train['itemID'].tolist()[:num_recommendations]
         new_test_df = test_df
 
-        # simply recommend the items with the most reorders to every user
+        # simply recommend the items that get reordered from the most users
         new_test_df['validation'] = new_test_df.apply(lambda row: True if row['itemID'] in reorders_train_list else False, axis=1)
         # evaluate performance of the prediction
         valid_groups = new_test_df.groupby(['validation']).count().reset_index()[['validation', 'order']]
@@ -246,29 +214,94 @@ def user_reorder_item_based_prediction_general_multiple_rec():
     evaluation_result_df.to_csv('user_reorder_item_based_prediction_general_multiple_rec.csv', sep='|')
 
 
+def user_order_item_based_prediction_general_multiple_rec():
+    """
+    ° recommend items that get ordered from many users
+
+    -> 1 item: ~0.98%
+    -> 30 items: ~7.84%
+    """
+    train_df = pd.read_csv('../resources/train_all_except_one.csv', delimiter='|')
+    test_df = pd.read_csv('../resources/test_one_except_all.csv', delimiter='|')
+    item_ordered_by_users = count_users_that_order_item(train_df)
+    orders_train = item_ordered_by_users.sort_values(['order_count'], ascending=False).reset_index(drop=True)
+
+    test_df = test_df[['itemID', 'order']]
+
+    evaluation_result = {'num_recommendations': [], 'correct_recommendations_[%]': []}
+    for num_recommendations in range(1, 30):
+        reorders_train_list = orders_train['itemID'].tolist()[:num_recommendations]
+        new_test_df = test_df
+
+        # simply recommend the items that get ordered from the most users
+        new_test_df['validation'] = new_test_df.apply(lambda row: True if row['itemID'] in reorders_train_list else False, axis=1)
+        # evaluate performance of the prediction
+        valid_groups = new_test_df.groupby(['validation']).count().reset_index()[['validation', 'order']]
+        error = (valid_groups['order'][0] / valid_groups['order'][1]) - 1     # min 0, lower is better
+        percentage_correct = valid_groups["order"][1] / valid_groups["order"][0] * 100
+        print(f'correct recommendations: {percentage_correct}%')
+        evaluation_result['num_recommendations'].append(num_recommendations)
+        evaluation_result['correct_recommendations_[%]'].append(percentage_correct)
+    evaluation_result_df = pd.DataFrame(evaluation_result)
+    evaluation_result_df.to_csv('user_order_item_based_prediction_general_multiple_rec.csv', sep='|')
+
+
+def total_order_based_prediction_general_multiple_rec():
+    """
+    ° recommend items with highest total order count
+
+    -> 1 item: ~0.98%
+    -> 30 items: ~7.8%
+    """
+    train_df = pd.read_csv('../resources/train_all_except_one.csv', delimiter='|')
+    test_df = pd.read_csv('../resources/test_one_except_all.csv', delimiter='|')
+    total_item_order = count_users_that_order_item(train_df)
+    orders_train = total_item_order.sort_values(['order_count'], ascending=False).reset_index(drop=True)
+
+    test_df = test_df[['itemID', 'order']]
+
+    evaluation_result = {'num_recommendations': [], 'correct_recommendations_[%]': []}
+    for num_recommendations in range(1, 30):
+        reorders_train_list = orders_train['itemID'].tolist()[:num_recommendations]
+        new_test_df = test_df
+
+        # simply recommend the items with the most orders to every user
+        new_test_df['validation'] = new_test_df.apply(lambda row: True if row['itemID'] in reorders_train_list else False, axis=1)
+        # evaluate performance of the prediction
+        valid_groups = new_test_df.groupby(['validation']).count().reset_index()[['validation', 'order']]
+        error = (valid_groups['order'][0] / valid_groups['order'][1]) - 1     # min 0, lower is better
+        percentage_correct = valid_groups["order"][1] / valid_groups["order"][0] * 100
+        print(f'correct recommendations: {percentage_correct}%')
+        evaluation_result['num_recommendations'].append(num_recommendations)
+        evaluation_result['correct_recommendations_[%]'].append(percentage_correct)
+    evaluation_result_df = pd.DataFrame(evaluation_result)
+    evaluation_result_df.to_csv('total_order_based_prediction_general_multiple_rec.csv', sep='|')
+
+
 if __name__ == '__main__':
+    total_order_based_prediction_general_multiple_rec()
     # user_reorder_item_based_prediction_general_multiple_rec()
     # reorder_based_prediction_user_specific_multiple_rec()
     # reorder_based_prediction_hybrid_user_spec_general_multiple_rec()
     # reorder_based_prediction_general_multiple_rec()
 
-    df_user_order = pd.read_csv('user_order_item_based_prediction_general_multiple_rec.csv', delimiter='|')
-    df_user_reorder = pd.read_csv('user_reorder_item_based_prediction_general_multiple_rec.csv', delimiter='|')
-    df_user_spec = pd.read_csv('reorder_based_prediction_user_specific_multiple_rec.csv', delimiter='|')
-    df_general = pd.read_csv('reorder_based_prediction_general_multiple_rec.csv', delimiter='|')
-    df_hybrid = pd.read_csv('reorder_based_prediction_hybrid_user_spec_general_multiple_rec.csv', delimiter='|')
-
-    df_general['user_spec_correct_recommendations_[%]'] = df_user_spec['correct_recommendations_[%]']
-    df_general['general_correct_recommendations_[%]'] = df_general['correct_recommendations_[%]']
-    df_general['hybrid_correct_recommendations_[%]'] = df_hybrid['correct_recommendations_[%]']
-    df_general['user_order_correct_recommendations_[%]'] = df_user_order['correct_recommendations_[%]']
-    df_general['user_reorder_correct_recommendations_[%]'] = df_user_reorder['correct_recommendations_[%]']
-    df_general.plot(x='num_recommendations',
-                    y=['user_spec_correct_recommendations_[%]',
-                       'general_correct_recommendations_[%]',
-                       'hybrid_correct_recommendations_[%]',
-                       'user_order_correct_recommendations_[%]',
-                       'user_reorder_correct_recommendations_[%]'])
-    plt.show()
-    pass
+    # df_user_order = pd.read_csv('user_order_item_based_prediction_general_multiple_rec.csv', delimiter='|')
+    # df_user_reorder = pd.read_csv('user_reorder_item_based_prediction_general_multiple_rec.csv', delimiter='|')
+    # df_user_spec = pd.read_csv('reorder_based_prediction_user_specific_multiple_rec.csv', delimiter='|')
+    # df_general = pd.read_csv('reorder_based_prediction_general_multiple_rec.csv', delimiter='|')
+    # df_hybrid = pd.read_csv('reorder_based_prediction_hybrid_user_spec_general_multiple_rec.csv', delimiter='|')
+    #
+    # df_general['user_spec_correct_recommendations_[%]'] = df_user_spec['correct_recommendations_[%]']
+    # df_general['general_correct_recommendations_[%]'] = df_general['correct_recommendations_[%]']
+    # df_general['hybrid_correct_recommendations_[%]'] = df_hybrid['correct_recommendations_[%]']
+    # df_general['user_order_correct_recommendations_[%]'] = df_user_order['correct_recommendations_[%]']
+    # df_general['user_reorder_correct_recommendations_[%]'] = df_user_reorder['correct_recommendations_[%]']
+    # df_general.plot(x='num_recommendations',
+    #                 y=['user_spec_correct_recommendations_[%]',
+    #                    'general_correct_recommendations_[%]',
+    #                    'hybrid_correct_recommendations_[%]',
+    #                    'user_order_correct_recommendations_[%]',
+    #                    'user_reorder_correct_recommendations_[%]'])
+    # plt.show()
+    # pass
 
