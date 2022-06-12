@@ -22,7 +22,7 @@ def reorder_based_prediction_general_single_rec():
     # evaluate performance of the prediction
     test_df['validation'] = test_df.apply(lambda row: True if row['recommendation'] == row['itemID'] else False, axis=1)
     valid_groups = test_df.groupby(['validation']).count().reset_index()[['validation', 'recommendation']]
-    error = (valid_groups['recommendation'][0] / valid_groups['recommendation'][1]) - 1     # min 0, lower is better
+    error = (valid_groups['recommendation'][0] / valid_groups['recommendation'][1]) - 1  # min 0, lower is better
     print(f'correct recommendations: {valid_groups["recommendation"][1] / valid_groups["recommendation"][0] * 100}%')
     # -> about 0.977% correct recommendations
 
@@ -68,7 +68,8 @@ def reorder_based_prediction_user_specific_multiple_rec():
 
     group = reorder_per_user.groupby(['userID'])
     keys = group.groups.keys()
-    reorder_groups = [group.get_group(reorder_count).sort_values(['reorder'], ascending=False).reset_index(drop=True) for reorder_count in keys]
+    reorder_groups = [group.get_group(reorder_count).sort_values(['reorder'], ascending=False).reset_index(drop=True)
+                      for reorder_count in keys]
 
     evaluation_result = {'num_recommendations': [], 'correct_recommendations_[%]': []}
     for num_recommendations in range(1, 30):
@@ -89,7 +90,7 @@ def reorder_based_prediction_user_specific_multiple_rec():
 
         # evaluate performance of the prediction
         valid_groups = new_test_df.groupby(['validation']).count().reset_index()[['validation', 'userID']]
-        error = (valid_groups['userID'][0] / valid_groups['userID'][1]) - 1     # min 0, lower is better
+        error = (valid_groups['userID'][0] / valid_groups['userID'][1]) - 1  # min 0, lower is better
         percentage_correct = valid_groups["userID"][1] / valid_groups["userID"][0] * 100
         print(f'correct recommendations: {percentage_correct}%')
         evaluation_result['num_recommendations'].append(num_recommendations)
@@ -121,10 +122,11 @@ def reorder_based_prediction_general_multiple_rec():
         new_test_df = test_df
 
         # simply recommend the items with the most reorders to every user
-        new_test_df['validation'] = new_test_df.apply(lambda row: True if row['itemID'] in reorders_train_list else False, axis=1)
+        new_test_df['validation'] = new_test_df.apply(
+            lambda row: True if row['itemID'] in reorders_train_list else False, axis=1)
         # evaluate performance of the prediction
         valid_groups = new_test_df.groupby(['validation']).count().reset_index()[['validation', 'order']]
-        error = (valid_groups['order'][0] / valid_groups['order'][1]) - 1     # min 0, lower is better
+        error = (valid_groups['order'][0] / valid_groups['order'][1]) - 1  # min 0, lower is better
         percentage_correct = valid_groups["order"][1] / valid_groups["order"][0] * 100
         print(f'correct recommendations: {percentage_correct}%')
         evaluation_result['num_recommendations'].append(num_recommendations)
@@ -140,6 +142,8 @@ def reorder_based_prediction_hybrid_user_spec_general_multiple_rec():
     -> 1 item from user spec, 29 from general: ~11%
     -> 29 from user spec, one from general: ~31.5%
     """
+    MAX_NUMBER_OF_RECOMMENDATIONS = 30
+
     train_df = pd.read_csv('../resources/train_all_except_one.csv', delimiter='|')
     test_df = pd.read_csv('../resources/test_one_except_all.csv', delimiter='|')
     reorder = total_reorders_count_for_every_item(train_df)
@@ -148,21 +152,24 @@ def reorder_based_prediction_hybrid_user_spec_general_multiple_rec():
 
     group = reorder_per_user.groupby(['userID'])
     keys = group.groups.keys()
-    reorder_groups = [group.get_group(reorder_count).sort_values(['reorder'], ascending=False).reset_index(drop=True) for reorder_count in keys]
+    reorder_groups = [group.get_group(reorder_count).sort_values(['reorder'], ascending=False).reset_index(drop=True)
+                      for reorder_count in keys]
 
     evaluation_result = {'num_recommendations': [], 'correct_recommendations_[%]': []}
-    for num_recommendations in range(1, 30):
+    for num_recommendations in range(1, MAX_NUMBER_OF_RECOMMENDATIONS):
         user_spec_reorder = {'userID': [], 'validation': []}
         for user_id_df in reorder_groups:
             user_id_item_list = user_id_df['itemID'].tolist()
             if num_recommendations > len(user_id_item_list):
-                items_from_general = reorders_train['itemID'].tolist()[:30 - len(user_id_item_list)]
-                items_from_user_spec = user_id_item_list
-                user_id_rec_list = items_from_user_spec + items_from_general
-            else:
-                items_from_general = reorders_train['itemID'].tolist()[:30 - num_recommendations]
-                items_from_user_spec = user_id_item_list[:num_recommendations]
-                user_id_rec_list = items_from_user_spec + items_from_general
+                items_from_general = reorders_train['itemID'].tolist()
+                user_id_rec_list = user_id_item_list[:num_recommendations]
+                # fill up the rest with items from general
+                for general_item in items_from_general:
+                    # append just general items that are not already in recommended
+                    if general_item not in user_id_rec_list:
+                        user_id_rec_list.append(general_item)
+                    if len(user_id_rec_list) >= MAX_NUMBER_OF_RECOMMENDATIONS:
+                        break
             test_item = test_df[test_df['userID'] == int(user_id_df['userID'][0])]['itemID'].tolist()[0]
             if test_item in user_id_rec_list:
                 user_spec_reorder['validation'].append(True)
@@ -173,7 +180,7 @@ def reorder_based_prediction_hybrid_user_spec_general_multiple_rec():
 
         # evaluate performance of the prediction
         valid_groups = new_test_df.groupby(['validation']).count().reset_index()[['validation', 'userID']]
-        error = (valid_groups['userID'][0] / valid_groups['userID'][1]) - 1     # min 0, lower is better
+        error = (valid_groups['userID'][0] / valid_groups['userID'][1]) - 1  # min 0, lower is better
         percentage_correct = valid_groups["userID"][1] / valid_groups["userID"][0] * 100
         print(f'correct recommendations: {percentage_correct}%')
         evaluation_result['num_recommendations'].append(num_recommendations)
@@ -202,10 +209,11 @@ def user_reorder_item_based_prediction_general_multiple_rec():
         new_test_df = test_df
 
         # simply recommend the items that get reordered from the most users
-        new_test_df['validation'] = new_test_df.apply(lambda row: True if row['itemID'] in reorders_train_list else False, axis=1)
+        new_test_df['validation'] = new_test_df.apply(
+            lambda row: True if row['itemID'] in reorders_train_list else False, axis=1)
         # evaluate performance of the prediction
         valid_groups = new_test_df.groupby(['validation']).count().reset_index()[['validation', 'order']]
-        error = (valid_groups['order'][0] / valid_groups['order'][1]) - 1     # min 0, lower is better
+        error = (valid_groups['order'][0] / valid_groups['order'][1]) - 1  # min 0, lower is better
         percentage_correct = valid_groups["order"][1] / valid_groups["order"][0] * 100
         print(f'correct recommendations: {percentage_correct}%')
         evaluation_result['num_recommendations'].append(num_recommendations)
@@ -234,10 +242,11 @@ def user_order_item_based_prediction_general_multiple_rec():
         new_test_df = test_df
 
         # simply recommend the items that get ordered from the most users
-        new_test_df['validation'] = new_test_df.apply(lambda row: True if row['itemID'] in reorders_train_list else False, axis=1)
+        new_test_df['validation'] = new_test_df.apply(
+            lambda row: True if row['itemID'] in reorders_train_list else False, axis=1)
         # evaluate performance of the prediction
         valid_groups = new_test_df.groupby(['validation']).count().reset_index()[['validation', 'order']]
-        error = (valid_groups['order'][0] / valid_groups['order'][1]) - 1     # min 0, lower is better
+        error = (valid_groups['order'][0] / valid_groups['order'][1]) - 1  # min 0, lower is better
         percentage_correct = valid_groups["order"][1] / valid_groups["order"][0] * 100
         print(f'correct recommendations: {percentage_correct}%')
         evaluation_result['num_recommendations'].append(num_recommendations)
@@ -266,10 +275,11 @@ def total_order_based_prediction_general_multiple_rec():
         new_test_df = test_df
 
         # simply recommend the items with the most orders to every user
-        new_test_df['validation'] = new_test_df.apply(lambda row: True if row['itemID'] in reorders_train_list else False, axis=1)
+        new_test_df['validation'] = new_test_df.apply(
+            lambda row: True if row['itemID'] in reorders_train_list else False, axis=1)
         # evaluate performance of the prediction
         valid_groups = new_test_df.groupby(['validation']).count().reset_index()[['validation', 'order']]
-        error = (valid_groups['order'][0] / valid_groups['order'][1]) - 1     # min 0, lower is better
+        error = (valid_groups['order'][0] / valid_groups['order'][1]) - 1  # min 0, lower is better
         percentage_correct = valid_groups["order"][1] / valid_groups["order"][0] * 100
         print(f'correct recommendations: {percentage_correct}%')
         evaluation_result['num_recommendations'].append(num_recommendations)
@@ -278,11 +288,77 @@ def total_order_based_prediction_general_multiple_rec():
     evaluation_result_df.to_csv('total_order_based_prediction_general_multiple_rec.csv', sep='|')
 
 
+def reorder_based_prediction_hybrid_user_spec_general_multiple_feature_blacklist_rec():
+    """
+    ° recommend the mostly reordered items specific for every user filled up to 30 with general recommended items
+
+    -> 1 item from user spec, 29 from general: ~11%
+    -> 29 from user spec, one from general: ~31.5%
+    """
+    MAX_NUMBER_OF_RECOMMENDATIONS = 30
+
+    train_df = pd.read_csv('../resources/train_all_except_one.csv', delimiter='|')
+    test_df = pd.read_csv('../resources/test_one_except_all.csv', delimiter='|')
+    train_feature_brand_values = pd.read_csv('../data_analysation/mapped_order_item_features_category_train_all_except_one.csv', delimiter='|')
+    items = pd.read_csv('../resources/items.csv', delimiter='|')
+    reorder = total_reorders_count_for_every_item(train_df)
+    reorder_per_user = reorder_count_same_user(train_df)
+    reorders_train = reorder.sort_values(['reorder_total'], ascending=False).reset_index(drop=True)
+
+    # count how often a feature_1 value is ordered by all users
+    feature_1_order_count = train_feature_brand_values.groupby(['feature_1']).count().reset_index()[['feature_1', 'order']].sort_values(['order'], ascending=False).reset_index(drop=True)
+    # set the rarest feature_1 values on a blacklist to not recommend items with these feature_1 values
+    feature_1_blacklist = feature_1_order_count['feature_1'][feature_1_order_count.shape[0] - 7:].tolist()
+
+    group = reorder_per_user.groupby(['userID'])
+    keys = group.groups.keys()
+    reorder_groups = [group.get_group(reorder_count).sort_values(['reorder'], ascending=False).reset_index(drop=True)
+                      for reorder_count in keys]
+
+    evaluation_result = {'num_recommendations': [], 'correct_recommendations_[%]': []}
+    for num_recommendations in range(1, MAX_NUMBER_OF_RECOMMENDATIONS):
+        user_spec_reorder = {'userID': [], 'validation': []}
+        for user_id_df in reorder_groups:
+            user_id_item_list = user_id_df['itemID'].tolist()
+            items_from_general = reorders_train['itemID'].tolist()
+            user_id_rec_list = []
+            for user_id_item in user_id_item_list:
+                # recommend just these items who`s feature values arent on the blacklist
+                if items[items['itemID'] == user_id_item].reset_index()['feature_1'][0] not in feature_1_blacklist:
+                    user_id_rec_list.append(user_id_item)
+                if len(user_id_rec_list) >= num_recommendations:
+                    break
+            # fill up the rest with items from general
+            for general_item in items_from_general:
+                # append just general items that are not already in recommended
+                if general_item not in user_id_rec_list:
+                    user_id_rec_list.append(general_item)
+                if len(user_id_rec_list) >= MAX_NUMBER_OF_RECOMMENDATIONS:
+                    break
+            test_item = test_df[test_df['userID'] == int(user_id_df['userID'][0])]['itemID'].tolist()[0]
+            if test_item in user_id_rec_list:
+                user_spec_reorder['validation'].append(True)
+            else:
+                user_spec_reorder['validation'].append(False)
+            user_spec_reorder['userID'].append(user_id_df['userID'][0])
+        new_test_df = pd.DataFrame(user_spec_reorder)
+
+        # evaluate performance of the prediction
+        valid_groups = new_test_df.groupby(['validation']).count().reset_index()[['validation', 'userID']]
+        error = (valid_groups['userID'][0] / valid_groups['userID'][1]) - 1  # min 0, lower is better
+        percentage_correct = valid_groups["userID"][1] / valid_groups["userID"][0] * 100
+        print(f'correct recommendations: {percentage_correct}%')
+        evaluation_result['num_recommendations'].append(num_recommendations)
+        evaluation_result['correct_recommendations_[%]'].append(percentage_correct)
+    rec_df = pd.DataFrame(evaluation_result)
+    rec_df.to_csv('reorder_based_prediction_hybrid_user_spec_general_multiple_feature_blacklist_rec.csv', sep='|')
+
+
 if __name__ == '__main__':
-    total_order_based_prediction_general_multiple_rec()
+    # total_order_based_prediction_general_multiple_rec()
     # user_reorder_item_based_prediction_general_multiple_rec()
     # reorder_based_prediction_user_specific_multiple_rec()
-    # reorder_based_prediction_hybrid_user_spec_general_multiple_rec()
+    reorder_based_prediction_hybrid_user_spec_general_multiple_feature_blacklist_rec()
     # reorder_based_prediction_general_multiple_rec()
 
     # df_user_order = pd.read_csv('user_order_item_based_prediction_general_multiple_rec.csv', delimiter='|')
@@ -304,4 +380,3 @@ if __name__ == '__main__':
     #                    'user_reorder_correct_recommendations_[%]'])
     # plt.show()
     # pass
-

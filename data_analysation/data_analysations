@@ -27,18 +27,25 @@ ITEM - USER
     just small group of users very often)
     --> 1 item: ~0.98%
     --> 30 items: ~7.8%
-° delay after which a specific user reorder the same item again (min, max, mean) - user specific
-° delay after a item gets reordered again (min, max, mean) - general
-° reorder frequency for every item (lots of items at ones / over time -> Verteilung über die Zeit) - specific user
-° reorder frequency for every item (lots of items at ones / over time -> Verteilung über die Zeit) - in general
-° seasonal effects for items
-° items get often ordered in large amounts per order / ordered just one item per order
+° delay after a item gets reordered again from the same user (min, max, mean) - user specific   |
+    -                                                                                           |
+° delay after a user orders again (any item) - user specific                                    |
+° delay after a item gets reordered again (min, max, mean) - general                            |
+° reorder frequency for every item (distribution over time) - specific user                     |
+° reorder frequency for every item (distribution over time) - in general                        |
+° reorder frequency for every user (not related to a specific item)                             |-> for time aware
+° correlation between reorder frequency and total number of orders                              |   recommendation
+    - more than 2 ordered items: reorder delay must be smaller than 122 days                    |
+    - reorder_delay < (number_of_days / ordered_items)                                          |
+    - where number_of_days is the time from the first order of the user until now               |
+° correlation between reorder frequency and how often a item gets reordered                     |
+° seasonal effects for items                                                                    |
 ° items who often gets ordered together (from the same user at the same day, ! cant be sure that this is the same order)
-° reorder frequency  for every user (not related to a specific item)
-° correlation between reorder frequency and total number of orders
-° correlation between reorder frequency and how often a item gets reordered
-° dependencies between user and items the user buy
-    - dominant features, brand
+° dependencies between items the user buy
+    - dominant feature-/brand-values
+° how many same items are ordered at once
+    - mean, max, min
+    - total number of same items at once -> it looks like 100 same items is the upper limit for one order
 ° how often an specific item gets ordered                       |
     - 1 item: ~0.98%                                            |
     - 30 items: ~7.8%                                           |
@@ -50,6 +57,7 @@ ITEM - USER
 ITEM - CATEGORY
 ° dependencies between items in the same category
     - items often share the same feature/brand values for ~75% of the features/brand
+    - items can be marked as similar but not identical
 ° dependencies between items in the same categories and there parent categories
 ° dependencies between items in the same parent category
 
@@ -57,3 +65,7 @@ USER - CATEGORY
 ° seasonal effects for item orders from the same category
 ° which category gets ordered the most -> are items in the same category also get reordered often?
 ° dependencies between the categories of the items a user order (same parent category?, dominant categories?)
+
+USER - OTHER USER
+° if two users (1 and 2) share one (or more) item(s), did user_2 also order a item user_1 has ordered in the past ?
+° can users be grouped into categories (like items) based on items they order
