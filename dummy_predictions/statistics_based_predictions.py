@@ -30,10 +30,13 @@ def reorder_based_prediction_general_single_rec():
 def reorder_based_prediction_user_specific_single_rec():
     """
     ° recommend the mostly reordered specific for every user
-    -> one vs all: ~ 4.23% correct recommendations
+    -> one vs. all: ~ 4.23% correct recommendations
+    -> one vs. all with item distributions to other users: ~ 4.36%
+        (18171 items where reorder itemID == user_dist itemID, full orders used here!)
     """
     train_df = pd.read_csv('../resources/train_all_except_one.csv', delimiter='|')
     test_df = pd.read_csv('../resources/test_one_except_all.csv', delimiter='|')
+    user_related_item_rec = pd.read_csv('../data_analysation/full_orders_user_item_recommendation.csv', delimiter='|')[['itemID', 'max_distribution']]
     reorder_per_user = reorder_count_same_user(train_df)
 
     group = reorder_per_user.groupby(['userID'])
@@ -46,7 +49,11 @@ def reorder_based_prediction_user_specific_single_rec():
         max_value = int(user_id_df['reorder'].values.max())
         user_spec_reorder['max_reorder_count'].append(max_value)
         items_with_max_values = user_id_df[user_id_df['reorder'] == max_value]
-        user_spec_reorder['itemID'].append(items_with_max_values['itemID'].values.max())
+        # instead of recommending the item with teh max reorders, recommend the item other users order the most,
+        # related to this item
+        max_value_item = items_with_max_values['itemID'].values.max()
+        user_rel_rec = user_related_item_rec[user_related_item_rec['itemID'] == max_value_item]['max_distribution'].values.max()
+        user_spec_reorder['itemID'].append(user_rel_rec)
     rec_df = pd.DataFrame(user_spec_reorder)
     rec_df['old_itemID'] = test_df['itemID']
     # evaluate performance of the prediction
@@ -355,6 +362,8 @@ def reorder_based_prediction_hybrid_user_spec_general_multiple_feature_blacklist
 
 
 if __name__ == '__main__':
+    reorder_based_prediction_user_specific_single_rec()
+
     # total_order_based_prediction_general_multiple_rec()
     # user_reorder_item_based_prediction_general_multiple_rec()
     # reorder_based_prediction_user_specific_multiple_rec()

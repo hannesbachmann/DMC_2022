@@ -304,6 +304,15 @@ def reorder_delay_same_user(orders):
     pass
 
 
+def mean_same_user_order_count(orders):
+    smaller_df = orders[['itemID', 'userID', 'order']]
+    ordered_items_list = orders.drop_duplicates(subset=['itemID'])['itemID'].tolist()
+    order_mean = lambda i_id: orders[orders['itemID'] == i_id].groupby(['userID']).count().reset_index()[
+        'order'].mean() if i_id in ordered_items_list else 0
+    mean_ordered_items = [(item_id, order_mean(item_id)) for item_id in range(32776)]
+    pass
+
+
 if __name__ == '__main__':
     items = pd.read_csv('../resources/items.csv', delimiter='|').sort_values(['itemID'])
     orders = pd.read_csv('../resources/orders.csv', delimiter='|').sort_values(['userID'])
